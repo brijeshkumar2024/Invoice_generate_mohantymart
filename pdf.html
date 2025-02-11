@@ -1,0 +1,128 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-4xl mx-auto bg-white p-8 shadow-lg rounded-lg mt-10" id="invoiceContent">
+        <!-- Invoice content will be injected here -->
+    </div>
+
+    <!-- Buttons for Edit and Download -->
+    <div class="flex justify-center space-x-4 mt-6">
+        <button id="editInvoice" class="bg-yellow-500 text-white py-2 px-4 rounded-md hover:bg-yellow-600">
+            Edit
+        </button>
+        <button id="downloadPDF" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
+            Download PDF
+        </button>
+    </div>
+
+    <script>
+        window.onload = function () {
+            const invoiceData = JSON.parse(localStorage.getItem('invoiceData')) || {};
+            console.log("Invoice Data:", invoiceData); // Debugging check
+
+            if (!invoiceData || !invoiceData.products) {
+                alert("No invoice data found! Redirecting to form.");
+                window.location.href = "index.html";
+                return;
+            }
+
+            // Generate HTML Preview
+            let invoiceHtml = `
+                <div class="flex justify-between items-center bg-blue-600 text-white p-6 rounded-t-lg">
+                    <h2 class="text-4xl font-bold uppercase">MOHANTY MART</h2>
+                    <div class="text-right">
+                        <h3 class="text-2xl text-yellow-400">Shop Details</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> College Square, Brahmagiri, Puri, Odisha, India</p>
+                        <p><i class="fas fa-phone"></i> Contact: 9437412202</p>
+                        
+                    </div>
+                </div>
+                <div class="flex justify-between items-start mt-6">
+                    <div class="w-1/2 bg-gray-100 p-6 rounded-lg shadow-md">
+<h4 class="text-xl font-semibold mb-4 underline decoration-dashed">Customer Details</h4>
+                        <p><strong>Name:</strong> ${invoiceData.customerName || ''}</p>
+                        <p><strong>Contact:</strong> ${invoiceData.customerContact || ''}</p>
+                        <p><strong>Address:</strong> ${invoiceData.customerAddress || ''}</p>
+                    </div>
+                    <div class="w-1/2 bg-gray-100 p-6 rounded-lg shadow-md">
+                        <p><strong>Date:</strong> ${invoiceData.invoiceDate || new Date().toLocaleDateString()}</p>
+                        <p><strong>Invoice No:</strong> ${invoiceData.invoiceNumber || 'N/A'}</p>
+                        <p><strong>Payment Mode:</strong> ${invoiceData.paymentMethod || 'Not Specified'}</p>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-blue-600 text-white">
+                                <th class="border p-4">Sl. No.</th>
+                                <th class="border p-4">Description</th>
+                                <th class="border p-4">Quantity</th>
+                                <th class="border p-4">Unit Price</th>
+                                <th class="border p-4">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${invoiceData.products.map((p, index) => `
+                                <tr>
+                                    <td class="border p-4">${index + 1}</td>
+                                    <td class="border p-4">${p.name}</td>
+                                    <td class="border p-4">${p.quantity}</td>
+                                    <td class="border p-4">₹${p.price}</td>
+                                    <td class="border p-4">₹${p.total}</td>
+                                </tr>
+                            `).join('')}
+                            <tr class="bg-gray-200">
+                                <td class="border p-4 text-right" colspan="4">GST</td>
+                                <td class="border p-4">₹${invoiceData.gst || 0}</td>
+                            </tr>
+                            <tr class="bg-gray-200">
+                                <td class="border p-4 text-right" colspan="4">Discount</td>
+                                <td class="border p-4">₹${invoiceData.discount || 0}</td>
+                            </tr>
+                            <tr class="bg-green-600 text-white font-bold">
+                                <td class="border p-4 text-right" colspan="4">Total Amount</td>
+                                <td class="border p-4">₹${invoiceData.totalAmount || 0}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('invoiceContent').innerHTML = invoiceHtml;
+
+            document.getElementById('downloadPDF').addEventListener('click', function () {
+                const invoiceElement = document.getElementById('invoiceContent');
+            
+                html2canvas(invoiceElement, { scale: 3 }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF('p', 'mm', 'a4'); 
+            
+                    const imgWidth = 120; // A4 width in mm
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width; // Auto height
+            
+                    doc.addImage(imgData, 'PNG', 0, 10, imgWidth, imgHeight);
+
+                    let customerName = invoiceData.customerName ? invoiceData.customerName.split(" ")[0] : "Invoice";
+let invoiceDate = invoiceData.invoiceDate ? invoiceData.invoiceDate.replace(/-/g, "_") : new Date().toISOString().split('T')[0];
+let fileName = `${customerName}_${invoiceDate}.pdf`;
+doc.save(fileName);
+9999999999
+                });
+            });
+
+            // Go back to edit invoice
+            document.getElementById('editInvoice').addEventListener('click', function () {
+                window.location.href = "ind.html";
+            });
+        };
+    </script>
+</body>
+</html>

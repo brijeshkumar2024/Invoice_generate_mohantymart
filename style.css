@@ -1,0 +1,15 @@
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+.custom-btn {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.custom-btn:hover {
+    background-color: #0056b3;
+}

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohanty Mart Invoice Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-100 font-roboto">
+
+    <!-- Invoice Form -->
+    <div id="invoiceForm" class="min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl">
+            <h2 class="text-2xl font-bold mb-6 text-center">Generate Invoice</h2>
+            <form id="invoiceDetailsForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Customer Name</label>
+                    <input type="text" id="customerName" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700"> Contact (Optional)</label>
+                    <input type="text" id="customerContact" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Address (Optional)</label>
+                    <input type="text" id="customerAddress" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Payment Method (Optional)</label>
+                    <select id="paymentMethod" class="w-full p-2 border rounded">
+                        <option value="">Select Payment Method</option>
+                        <option value="Cash">Cash</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Debit Card">Debit Card</option>
+                        <option value="UPI">UPI</option>
+                        <option value="Cheque">Cheque</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <input type="date" id="invoiceDate" class="w-full p-2 border rounded">
+
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Invoice Number</label>
+                    <input type="text" id="invoiceNumber" class="w-full p-2 border rounded" >
+
+                </div>
+
+                <!-- Product List -->
+                <div id="productList" class="space-y-4">
+                    <div class="product-item flex space-x-4">
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700">Product Name</label>
+                            <input type="text" class="productName w-full p-2 border rounded">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700">Price</label>
+                            <input type="number" class="productPrice w-full p-2 border rounded">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700">Quantity</label>
+                            <input type="number" class="productQuantity w-full p-2 border rounded">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Product Button -->
+                <button type="button" id="addProduct" class="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600">
+                    Add Another Product
+                </button>
+
+                <!-- GST & Discount -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">GST Amount (Optional)</label>
+                    <input type="number" id="gstAmount" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Discount Amount (Optional)</label>
+                    <input type="number" id="discountAmount" class="w-full p-2 border rounded">
+                </div>
+
+
+                <!-- Total Section -->
+                <div class="mt-4">
+                    <label class="block text-lg font-medium text-gray-700">Total Amount</label>
+                    <input type="number" id="totalAmount" class="w-full p-2 border rounded bg-gray-200" >
+                </div>
+
+                <!-- Calculate Total Button -->
+                <button type="button" id="calculateTotal" >
+                   
+                </button>
+
+                <!-- Generate PDF Button -->
+                <div class="flex items-center justify-between mt-4">
+                    <button type="button" id="generatePDF" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
+                        Generate Invoice
+                    </button>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Function to calculate total amount
+        function updateTotal() {
+            let total = 0;
+            document.querySelectorAll('.product-item').forEach(item => {
+                let price = parseFloat(item.querySelector('.productPrice').value) || 0;
+                let quantity = parseInt(item.querySelector('.productQuantity').value) || 0;
+                total += price * quantity;
+            });
+
+            total += parseFloat(document.getElementById('gstAmount').value) || 0;
+            total -= parseFloat(document.getElementById('discountAmount').value) || 0;
+
+            document.getElementById('totalAmount').value = total.toFixed(2);
+        }
+        function setInvoiceDate() {
+            let today = new Date();
+            let year = today.getFullYear();
+            let month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+            let day = String(today.getDate()).padStart(2, '0');
+            
+            document.getElementById("invoiceDate").value = `${year}-${month}-${day}`;
+        }
+        
+        // Set the date when the page loads
+        document.addEventListener("DOMContentLoaded", setInvoiceDate);
+        
+
+// Set the date when the page loads
+document.addEventListener("DOMContentLoaded", setInvoiceDate);
+
+
+        // Event listener for "Calculate Total"
+        document.getElementById('calculateTotal').addEventListener('click', updateTotal);
+        // Function to generate and increment invoice number
+function generateInvoiceNumber() {
+    let lastInvoiceNumber = localStorage.getItem("lastInvoiceNumber");
+
+    if (!lastInvoiceNumber) {
+        lastInvoiceNumber = 0; // Start from 0 if no invoice exists
+    } else {
+        lastInvoiceNumber = parseInt(lastInvoiceNumber) + 1; // Increment by 1
+    }
+
+    localStorage.setItem("lastInvoiceNumber", lastInvoiceNumber); // Store updated invoice number
+    return lastInvoiceNumber;
+}
+
+// Set the invoice number when the page loads
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('invoiceNumber').value = generateInvoiceNumber();
+});
+
+
+// Set the invoice number when the page loads
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('invoiceNumber').value = generateInvoiceNumber();
+});
+
+
+        // Auto update total when values change
+        document.getElementById('productList').addEventListener('input', updateTotal);
+        document.getElementById('gstAmount').addEventListener('input', updateTotal);
+        document.getElementById('discountAmount').addEventListener('input', updateTotal);
+
+        // Add new product row
+        document.getElementById('addProduct').addEventListener('click', function() {
+            const productItem = document.createElement('div');
+            productItem.classList.add('product-item', 'flex', 'space-x-4');
+            productItem.innerHTML = `
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700">Product Name</label>
+                    <input type="text" class="productName w-full p-2 border rounded">
+                </div>
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700">Price</label>
+                    <input type="number" class="productPrice w-full p-2 border rounded">
+                </div>
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700">Quantity</label>
+                    <input type="number" class="productQuantity w-full p-2 border rounded">
+                </div>
+            `;
+            document.getElementById('productList').appendChild(productItem);
+        });
+
+        // Generate Invoice & Redirect to PDF Page
+        document.getElementById('generatePDF').addEventListener('click', function() {
+            const invoiceData = {
+                customerName: document.getElementById('customerName').value,
+                customerContact: document.getElementById('customerContact').value || "N/A",
+                customerAddress: document.getElementById('customerAddress').value || "N/A",
+                invoiceDate: document.getElementById('invoiceDate').value,
+                invoiceNumber: document.getElementById('invoiceNumber').value,
+                paymentMethod: document.getElementById('paymentMethod').value || "Not Specified",
+                gst: parseFloat(document.getElementById('gstAmount').value) || 0,
+                discount: parseFloat(document.getElementById('discountAmount').value) || 0,
+                totalAmount: document.getElementById('totalAmount').value || "0.00",  // ✅ Store total amount
+                products: Array.from(document.querySelectorAll('.product-item')).map(item => ({
+                    name: item.querySelector('.productName').value,
+                    price: parseFloat(item.querySelector('.productPrice').value),
+                    quantity: parseInt(item.querySelector('.productQuantity').value),
+                    total: parseFloat(item.querySelector('.productPrice').value) * parseInt(item.querySelector('.productQuantity').value)
+                }))
+            };
+            localStorage.setItem('invoiceData', JSON.stringify(invoiceData));
+            window.location.href = "pdf.html";
+        });
+        
+    </script>
+</body>
+</html>

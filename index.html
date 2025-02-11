@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOHANTY - Login</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('p1.jpg'); /* Background Image */
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+
+    .login-box {
+      max-width: 400px;
+      padding: 30px;
+      background-color: rgba(145, 207, 221, 0.9); /* Transparent Background */
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    input {
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.3s;
+      background-color: #f9f9f9;
+      margin-bottom: 15px;
+    }
+
+    input:focus {
+      border-color: #4CAF50;
+    }
+
+    button {
+      padding: 12px;
+      width: 100%;
+      font-size: 18px;
+      background-color: #67e332;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background-color 0.3s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #b383ff;
+    }
+
+    .demo-link {
+      font-size: 16px;
+      color: #cb314e;
+      margin-top: 15px;
+      display: block;
+    }
+
+    .demo-link:hover {
+      background-color: rgb(139, 209, 209);
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .login-box {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      input {
+        font-size: 14px;
+        padding: 10px;
+      }
+
+      button {
+        font-size: 16px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-box">
+    <h1>Login</h1>
+
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="Enter Username" required>
+      <input type="password" id="password" placeholder="Enter Password" required>
+      <input type="password" id="passcode" placeholder="Enter Passcode" required>
+      
+      <button type="button" id="loginButton">Login</button>
+    </form>
+
+    <a href="#" id="demoLogin" class="demo-link">Login as Demo User</a>
+  </div>
+
+  <script>
+    document.getElementById('loginButton').addEventListener('click', function() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const passcode = document.getElementById('passcode').value;
+
+        if (username === 'Mohanty' && password === '9437' && passcode === '2016') {
+            alert('Login Successful! Redirecting...');
+            window.location.href = "index.html";
+        } else {
+            alert('Invalid Credentials! Please Try Again.');
+        }
+    });
+
+    document.getElementById('demoLogin').addEventListener('click', function() {
+        alert('Demo Login Successful! Redirecting...');
+        window.location.href = "ind.html";
+    });
+  </script>
+</body>
+</html>
